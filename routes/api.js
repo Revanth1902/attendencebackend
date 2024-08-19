@@ -93,13 +93,22 @@ router.post("/goal", async (req, res) => {
     const user = await User.findOne({ userId });
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    user.goals.push({ goalName, goalEndDate, goalDescription });
+    // Optionally, you can include createdOn if you want to set it manually
+    const newGoal = {
+      goalName,
+      goalEndDate,
+      goalDescription,
+      createdOn: new Date(), // This will explicitly set createdOn if needed
+    };
+
+    user.goals.push(newGoal);
     await user.save();
     res.json(user);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // Get User Data
 router.get("/user/:userId", async (req, res) => {

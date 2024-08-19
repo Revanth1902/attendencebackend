@@ -26,6 +26,7 @@ const userSchema = new mongoose.Schema({
       goalName: String,
       goalEndDate: Date,
       goalDescription: String,
+      createdOn: { type: Date, default: Date.now },
     },
   ],
 });
