@@ -18,20 +18,31 @@ router.post("/user", async (req, res) => {
 });
 
 // Add or Update Attendance
-router.post("/attendance", async (req, res) => {
+// Add or Update Attendance
+router.post('/attendance', async (req, res) => {
   try {
     const { userId, date, status, holidayName } = req.body;
     const user = await User.findOne({ userId });
-    if (!user) return res.status(404).json({ error: "User not found" });
+
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    // Check if attendance for the given date already exists
+    const existingAttendance = user.attendance.find(att => att.date.toDateString() === new Date(date).toDateString());
+
+    if (existingAttendance) {
+      return res.status(400).json({ message: 'Already logged this successfully' });
+    }
 
     const attendance = { date, status, holidayName };
     user.attendance.push(attendance);
     await user.save();
+
     res.json(user);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // Add or Update Timetable
 router.post("/timetable", async (req, res) => {
