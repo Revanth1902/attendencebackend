@@ -38,8 +38,10 @@ router.post('/attendance', async (req, res) => {
 
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    // Check if attendance for the given date already exists
-    const existingAttendance = user.attendance.find(att => att.date.toDateString() === new Date(date).toDateString());
+    // Convert dates to Date objects before comparing
+    const existingAttendance = user.attendance.find(att => 
+      new Date(att.date).toDateString() === new Date(date).toDateString()
+    );
 
     if (existingAttendance) {
       return res.status(400).json({ message: 'Already logged this successfully' });
@@ -54,6 +56,7 @@ router.post('/attendance', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 
 // Add or Update Timetable
