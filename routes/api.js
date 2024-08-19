@@ -1,9 +1,9 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const User = require('../models/User');
+const User = require("../models/User");
 
 // Create or Update User
-router.post('/user', async (req, res) => {
+router.post("/user", async (req, res) => {
   try {
     const { userId, semesterStartDate, semesterEndDate } = req.body;
     const user = await User.findOneAndUpdate(
@@ -18,11 +18,11 @@ router.post('/user', async (req, res) => {
 });
 
 // Add or Update Attendance
-router.post('/attendance', async (req, res) => {
+router.post("/attendance", async (req, res) => {
   try {
     const { userId, date, status, holidayName } = req.body;
     const user = await User.findOne({ userId });
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (!user) return res.status(404).json({ error: "User not found" });
 
     const attendance = { date, status, holidayName };
     user.attendance.push(attendance);
@@ -34,7 +34,7 @@ router.post('/attendance', async (req, res) => {
 });
 
 // Add or Update Timetable
-router.post('/timetable', async (req, res) => {
+router.post("/timetable", async (req, res) => {
   try {
     const { userId, timetable } = req.body;
     const user = await User.findOneAndUpdate(
@@ -49,11 +49,11 @@ router.post('/timetable', async (req, res) => {
 });
 
 // Add or Update Task
-router.post('/task', async (req, res) => {
+router.post("/task", async (req, res) => {
   try {
     const { userId, taskName } = req.body;
     const user = await User.findOne({ userId });
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (!user) return res.status(404).json({ error: "User not found" });
 
     user.tasks.push({ taskName });
     await user.save();
@@ -64,11 +64,11 @@ router.post('/task', async (req, res) => {
 });
 
 // Add or Update Goal
-router.post('/goal', async (req, res) => {
+router.post("/goal", async (req, res) => {
   try {
     const { userId, goalName, goalEndDate, goalDescription } = req.body;
     const user = await User.findOne({ userId });
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (!user) return res.status(404).json({ error: "User not found" });
 
     user.goals.push({ goalName, goalEndDate, goalDescription });
     await user.save();
@@ -79,11 +79,11 @@ router.post('/goal', async (req, res) => {
 });
 
 // Get User Data
-router.get('/user/:userId', async (req, res) => {
+router.get("/user/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
     const user = await User.findOne({ userId });
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (!user) return res.status(404).json({ error: "User not found" });
 
     res.json(user);
   } catch (err) {
@@ -92,11 +92,28 @@ router.get('/user/:userId', async (req, res) => {
 });
 
 // Reset User Data
-router.delete('/user/:userId', async (req, res) => {
+router.delete("/user/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
     await User.findOneAndDelete({ userId });
-    res.json({ message: 'User data reset successfully' });
+    res.json({ message: "User data reset successfully" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+// Delete a Task by Task ID
+router.delete("/user/:userId/task/:taskId", async (req, res) => {
+  try {
+    const { userId, taskId } = req.params;
+
+    const user = await User.findOne({ userId });
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    // Filter out the task with the specified taskId
+    user.tasks = user.tasks.filter((task) => task._id.toString() !== taskId);
+
+    await user.save();
+    res.json({ message: "Task deleted successfully" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
