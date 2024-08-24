@@ -3,9 +3,11 @@ const router = express.Router();
 const User = require("../models/User");
 const cron = require("node-cron");
 // Create or Update User
+// cron job for deleting expired goals
 cron.schedule("0 0 * * *", async () => {
   try {
     const today = new Date();
+    // Ensure that `goalEndDate` is compared correctly
     await User.updateMany(
       { "goals.goalEndDate": { $lt: today } },
       { $pull: { goals: { goalEndDate: { $lt: today } } } }
@@ -15,6 +17,7 @@ cron.schedule("0 0 * * *", async () => {
     console.error("Error removing expired goals:", err.message);
   }
 });
+
 router.post("/user", async (req, res) => {
   try {
     const { userId, semesterStartDate, semesterEndDate } = req.body;
